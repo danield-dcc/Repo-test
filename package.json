@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "test:cov":"jest --coverage",
     "build": "sucrase ./controllers -d ./dist --transforms imports",
     "dev": "nodemon app.js",
     "start": "node dist/app.js"

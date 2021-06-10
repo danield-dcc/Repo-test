@@ -1,17 +1,8 @@
-
 const knex = require("../database/dbConfig")
 
-//trabalhando como class
 module.exports = {
 
-    //index: listagem
-    //store/create: inclusão
-    //update: alteração
-    //show: retornar 1 arquivo
-    //destroy: exclusão
-
     async index(req, res) {
-        //const clientes = await knex("clientes").orderBy("id");
 
         const clientes = await knex.select("c.id", "c.nome", "c.endereco", "c.cpf", "c.telefone", "caes.nome as Nome do Cachorro", "ra.nome as Raça", "caes.foto")
             .from("clientes as c",)
@@ -21,16 +12,14 @@ module.exports = {
         res.status(200).json(clientes);
     },
 
-
     async store(req, res) {
-        // faz a desestruturação do objeto req.body
+
         const { nome, endereco, cpf, telefone, caes_cadastrados_id } = req.body;
 
-        //validação para os campos
-        // if (!nome || !endereco || !cpf || !telefone || !caes_cadastrados_id) {
-        //     res.status(400).json({ erro: "Enviar nome, endereço, cpf" });
-        //     return;
-        // }
+        if (!nome || !endereco || !cpf || !telefone || !caes_cadastrados_id) {
+            res.status(400).json({ erro: "Enviar nome, endereço, cpf" });
+            return;
+        }
 
         try {
             const novo = await knex("clientes").insert({ nome, endereco, cpf, telefone, caes_cadastrados_id });
@@ -41,8 +30,6 @@ module.exports = {
     },
 
 
-
-    //alteração por id
     async update(req, res) {
         const id = req.params.id
         const { nome, endereco, cpf, telefone, caes_cadastrados_id } = req.body;
@@ -53,42 +40,32 @@ module.exports = {
         } catch (error) {
             res.status(400).json({ msg: error.message })
         }
-
     },
 
-    
-    //delete destroy
+
     async destroy(req, res) {
         const id = req.params.id;
-        
         try {
-           const dados =  await knex('clientes').del().where({ id })
-           if(dados.find((e) => e.id != id)){
-              res.status(200).json("Cliente excluido com sucesso!") 
-           }
-            
+            const dados = await knex('clientes').del().where({ id })
+            res.status(200).json("Cliente excluido com sucesso!")
+
         } catch (error) {
             res.status(400).json({ msg: error })
         }
     },
 
-
- 
-
-    //show
     async show(req, res) {
         const { palavra } = req.params
+
         try {
             const clientes = await knex('clientes').where('nome', 'like', `%${palavra}%`)
                 .orWhere('endereco', 'like', `%${palavra}%`)
                 .orWhere('CPF', 'like', `%${palavra}%`)
                 .orWhere('telefone', 'like', `%${palavra}%`)
-            res.status(200).json(clientes)
+            res.status(200).json({ clientes })
         } catch (error) {
-            res.status(400).json({ msg: error.message })
+            res.status(404).json({ msg: error.message })
         }
     },
-
-
 
 }
